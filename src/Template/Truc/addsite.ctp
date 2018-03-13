@@ -14,4 +14,4 @@ echo $this->Html->link(
     array('controller' => 'truc', 'action' => 'listesite'),
         array('confirm' => 'Etes-vous sûr de voulour annuler?'));
 
-?>ddddddd
+?>

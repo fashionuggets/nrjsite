@@ -1,5 +1,5 @@
  <div class="container clearfix">
-            <?php 
+            <?php
             echo $this->Form->create();
             echo $this->Form->input("login");
             echo $this->Form->input("password");

@@ -9,7 +9,7 @@
 echo "</tr>";
 
  echo $this->Form->create($new); //prerempli les imputs de la base de données
- echo $this->Form->import("login");
+ echo $this->Form->set("login");
  echo $this->Form->import("password");
  echo $this->Form->submit();
  echo $this->Form->end();
@@ -26,11 +26,11 @@ echo "</tr>";
 <section class="large-6">
     <h2>Formulaire</h2>
     <?= $this->Form->create()?>
-        <?= $this->Form->input('name')?>
-            <?= $this->Form->input('type')?>
-                <?= $this->Form->input('location_x')?>
-                    <?= $this->Form->input('location_y')?>
-                        <?= $this->Form->input('stock')?>
+        <?= $this->Form->set('name')?>
+            <?= $this->Form->set('type')?>
+                <?= $this->Form->set('location_x')?>
+                    <?= $this->Form->set('location_y')?>
+                        <?= $this->Form->set('stock')?>
                             <?= $this->Form->submit()?>
                                 <?= $this->Form->end()?>
 </section>

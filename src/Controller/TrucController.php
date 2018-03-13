@@ -29,8 +29,6 @@
 
             $this->loadModel("Sites");
             $this->set('sites', $this->Sites->find());
-            $this->loadModel("Records");
-            $this->set('records', $this->Records->find());
 
 
         }
@@ -42,11 +40,28 @@
                 $a = $this->request->data;
                 $query = $this->loadModel("Sites")->query();
                 $query->insert(['name', 'type','location_x','location_y'])->values(['name' => $a['name'],'type' => $a['type'],'location_x' => $a['location_x'], 'location_y' => $a['location_y']])->execute();
-                $this->Flash->set('Vous avez bien ajouté un site');
+
                 $this->redirect(array('action' => 'listesite'));
             }
         }
+public function updatesite(){
 
+
+
+	if ($this->request->is("post"))
+	{
+		if( $this->request->data['location_x']!=NULL && $this->request->data['location_y']!=NULL){
+			$updateSite->location_x = $this->request->data['location_x'];
+		$updateSite->location_y = $this->request->data['location_y'];
+
+
+		$this->Flash->set('Corrected successfully !');
+		}else{
+			$this->Flash->error('Dont forget to fill all the information');
+
+		}
+
+	}}
 
         public function login(){
 

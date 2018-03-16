@@ -2,83 +2,53 @@
     namespace App\Controller;
 
     use App\Controller\AppController;
+    use Cake\Event\Event;
 
     class TrucController extends AppController
     {
         public function machin(){
 
-            $this->loadModel("Sites");
-            $m=$this->Sites->find();
-            $this->set("m",$m);
 
-            $this->loadModel("Users");
-            $new=$this->Users->newEntity(); // ajout d'un parametre si edition Users->get(1)
-            if($this->request->is("post"))
-            {
-                $new->login = $this->request->data["login"];
-                $new->passwd = $this->request->data["passwd"];
-                $this->User->save($new);
-            }
-            $this->set("new", $new);
         }
 
 
 
         public function listesite(){
-
-
+          session_start();
+          if (isset($_SESSION['id']))
+          {
+            $this->Flash->success("Welcome");
             $this->loadModel("Sites");
             $this->set('sites', $this->Sites->find());
             $this->loadModel("Records");
             $this->set('records', $this->Records->find());
 
+          }
+          else {
+        $this->Flash->error("Please login first");
+        $this->redirect(['action' => 'login']);
+
+          }
+
+
+
+
 
         }
 
         public function accueil(){
+          session_start();
+          if (isset($_SESSION['id']))
+          {
+            $this->Flash->success("Welcome");
+          }
+          else {
+        $this->redirect(['action' => 'login']);
+          }
 
-        $this->loadModel('Users');
-        $this->set('forgot', 0);
-        if ($this->request->is('post')) {
-            if (isset($this->request->getData()['Submit'])) {
-
-                $user = $this->Players->login($this->request->getData()['pseudo'], $this->request->getData()['password']);
-                if (empty($user) || $user == false) {
-                    $this->Flash->error("Please complete all the information ");
-                } else {
-                    $this->request->session()->write('User', $user);
-                    $this->request->session()->write('User', $user);
-
-
-                    $this->redirect(['controller' => 'Truc', 'action' => 'listesite']);
-                }
-            }
-
-        }
       }
 
-        public function login(){
-          $this->loadModel('Membre');
-          if ($this->request->is('post')) {
-          if (isset($this->request->getData()['Connexion'])) {
-              $user = $this->request->getData()(['pseudo'],['password']);
 
-              if (empty($user) || $user != $this->Membre) {
-                  $this->Flash->error("Try again");
-              } else {
-                  $this->request->session()->write('User', $user);
-                  $this->request->session()->write('User', $user);
-                  // Creation de l'event login
-                  //$this->createevent($this->request->session()->read('User'));
-
-                  $this->redirect(['controller' => 'Truc', 'action' => 'accueil']);
-              }
-
-        }
-
-
-    }
-  }
       public function register(){
         $this->loadModel('Membre');
 
@@ -99,7 +69,15 @@
             {
           if ($this->request->getData()['password'] == $this->request->getData()['password2'])
           {
+            $member = $this->Membre->newEntity();
 
+                  $member = $this->Membre->patchEntity($member, $this->request->getData());
+                  if ($this->Membre->save($member)) {
+                      $this->Flash->success("Your account have been created");
+
+                  }
+                  //$this->Flash->error(__("Impossible d'ajouter l'utilisateur."))
+              $this->set('Membre', $member);
           }
           else {
             $this->Flash->error("Your password are not similar");
@@ -112,31 +90,96 @@
         else {
           $this->Flash->error("This pseudo already exist. Please choose another one");
         }
+
         }
-        $member = $this->Membre->newEntity();
+        else {
+          $this->Flash->error("Please complete all the following information");
+        }
 
-              $member = $this->Membre->patchEntity($member, $this->request->getData());
-              if ($this->Membre->save($member)) {
-                  //$this->Flash->success(__("L'utilisateur a été sauvegardé."));
-
-              }
-              //$this->Flash->error(__("Impossible d'ajouter l'utilisateur."))
-          $this->set('member', $member);
       }
       }
     }
 
+
         public function voieacheminement(){
+          session_start();
+          if (isset($_SESSION['id']))
+          {
+            $this->Flash->success("Welcome");
+          }
+          else {
+            $this->Flash->error("Please login first");
+        $this->redirect(['action' => 'login']);
+          }
 
         }
 
         public function detail(){
+          session_start();
+          if (isset($_SESSION['id']))
+          {
+            $this->Flash->success("Welcome");
+
+          }
+          else {
+        $this->Flash->error("Please login first");
+        $this->redirect(['action' => 'login']);
+
+          }
 
         }
 
         public function logout(){
-    
-    }
+          session_start();
+          session_destroy();
 
     }
-?>
+        public function login()
+        {
+          $this->loadModel('Membre');
+          if ($this->request->is('post'))
+          {
+          if(!empty($this->request->data(["pseudo"]))) {
+            $this->loadModel('Membre');
+            //loading player models
+            //finding playerr and storing it in a variable
+            $var = $this->Membre->find('all')->where(['pseudo'=>$this->request->data['pseudo']]);
+            //check every users if the right one is used
+
+            foreach ($var as $Membre)
+            {
+                if ($this->request->data['password'] == $Membre['password'])
+                {
+                  // writing on session variable connected account id
+                  $this->request->session()->write('Membre.id',$Membre['id']);
+                  $this->Flash->success('Vous êtes désormais connecté!');
+                  $_SESSION['id'] = $Membre['id'];
+                    //redirecting home
+                    return $this->redirect(['action' => 'accueil']);
+                    //return $this->redirect($this->Auth->redirectUrl());
+                }
+
+          }
+          $this->Flash->error('Erreur mot de passe, veuillez réessayer !');
+        }
+      }
+    }
+
+  /*public function login()
+    {
+        if ($this->request->is('post')) {
+            $member = $this->Auth->identify();
+            if ($member) {
+                $this->Auth->setUser($member);
+                $this->Flash->error("You are connected");
+                return $this->redirect($this->Auth->redirectUrl());
+              }
+                $this->Flash->error("Your pseudo or password is wrong ");
+
+            }
+        }*/
+
+
+
+
+    }
